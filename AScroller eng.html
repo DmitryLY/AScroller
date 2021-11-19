@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <script src="AScroller.js" type="text/javascript"></script>
+    <link href="AScroller.css" rel="stylesheet" type="text/css">
+    
+    
+</head>
+<body class="aScrollBar">
+
+    <div class="demo" style="max-width:1100px; margin: auto;">
+
+        <div style="font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; line-height: 19px; "><div style="text-align: center; "><font color="#3984c6"><b><span style="font-size: 18px;">AScroller in native JavaScript v. 0.1</span></b></font></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br></div><div><div>Example of source code:</div><div><font color="#569cd6"><br></font></div></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#569cd6">&lt;</font>div class="<font color="#3984c6">AScroller</font>" <font color="#3984c6">data-ascroller="gallery mini-imagesx3 arrows condition full"</font> style="height: 300px;"<font color="#569cd6">&gt;</font><br></div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color: #569cd6;">&lt;</span>img src="demo/hp_1.jpg" title="HP LP3065" alt="HP LP3065"<font color="#569cd6">&gt;</font></div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <font color="#569cd6">&lt;</font>a href="http://yandex.ru" style="width:400px;height:400px;"&gt;link<font color="#569cd6">&lt;</font>/a<font color="#569cd6">&gt;</font></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<font color="#569cd6"><br></font></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font color="#569cd6">&lt;</font>/div<font color="#569cd6">&gt;</font></div><div><font color="#569cd6"><br></font></div><div>Example of generated code:</div><div><br></div><div><div style="line-height: 19px; white-space: pre;"><div>&lt;div class="<font color="#3984c6">AScrollerBox</font>" &gt;</div><div>&nbsp; &nbsp; &lt;div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">AScroller</font>"&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">Ascroller_box_flex</font>"&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="white-space: normal; color: rgb(86, 156, 214);">&lt;</span><span style="white-space: normal;">img src="demo/hp_1.jpg" title="HP LP3065" alt="HP LP3065"</span><font color="#569cd6" style="white-space: normal;">&gt;</font></div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#569cd6" style="white-space: normal;">&lt;</font><span style="white-space: normal;">a href="http://yandex.ru" style="width:400px;height:400px;"&gt;link</span><font color="#569cd6" style="white-space: normal;">&lt;</font><span style="white-space: normal;">/a</span><font color="#569cd6" style="white-space: normal;">&gt;</font><br></div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;div class="<font color="#3984c6">AScrollerCondition</font>"&gt;&lt;div&gt;&lt;/div&gt;&lt;div class="<font color="#3984c6">curCondition</font>"&gt;&lt;/div&gt;&lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;div class="<font color="#3984c6">AScrollerBoxMini</font>"&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &lt;div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">AScroller_miniImages</font>"&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">Ascroller_box_flex</font>"&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="white-space: normal; color: rgb(86, 156, 214);">&lt;</span><span style="white-space: normal;">img src="demo/hp_1.jpg" title="HP LP3065" alt="HP LP3065"</span><font color="#569cd6" style="white-space: normal;">&gt;</font></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<font color="#569cd6" style="white-space: normal;"><br></font></div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">arrows prev</font>"&gt;&lt;/div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;div class="<font color="#3984c6">arrows next</font>"&gt;&lt;/div&gt;</div><div>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;div class="<font color="#3984c6">arrows prev</font>" &gt;&lt;/div&gt;</div><div>&nbsp; &nbsp; &lt;div class="<font color="#3984c6">arrows next</font> " &gt;&lt;/div&gt;</div><div>&lt;/div&gt;</div></div></div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><div><font color="#569cd6">class="AScroller"</font> - html element with that class name will be generate by AScroller to scroller with AScrollerBox class name, with arguments from data-ascroller attribute of source element and width,max-width from style attribue.</div><div><br></div><div>&nbsp; &nbsp; Available arguments of data-ascroller attribute:</div><div><font color="#3984c6">gallery </font>- Ascroller dimension will be match to most big subelement of scroller or dimension of style attribute. Will be showed only one element in window.</div><div><font color="#3984c6">mini-imagesx3</font> - mini images of AScroller with width in xN elements.</div><div><font color="#3984c6">arrows </font>- show arrows by main window of AScroller.</div><div><font color="#3984c6">condition </font>- show condition of AScroller moving.</div><div><font color="#3984c6">full </font>- show by click or touch full images in new generated AScroller with dimension of window browser, but no more.</div><div><br></div><div>Arrows and mini images will not be showed on mobile devices.</div><div>There is support of moving AScroller by holding touches on mobile devices and left button of mouse on PC.</div><div><br></div><div>!! Must be supporting display: flex; by&nbsp;browser.</div><div></div><div></div></div>
+        <br>
+        <p><span style="color: rgb(57, 132, 198); font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; "><br>Scroller with following flags: data-ascroller = "gallery mini-imagesx3 arrows condition full", and several subelements</span></p>
+        <div class="AScroller" data-ascroller="gallery mini-imagesx3 arrows condition full">
+            <img src="demo/macbook_pro_1.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_2.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_3.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_4.jpg" title="MacBook pro" alt="MacBook pro "/>   
+            <img src="demo/sony_vaio_1.jpg"  title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_2.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/min.jpg" title="MIN" alt="MIN"/>
+            <img src="demo/sony_vaio_3.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_4.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_5.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+        </div>
+
+        <br>
+        <br>
+
+        <p><span style="color: rgb(57, 132, 198); font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; "><br>Scroller with following flags: data-ascroller = "gallery condition full", and set width style, and single subelement</span></p>
+        <div class="AScroller"  data-ascroller="gallery condition full" style="width: 400px;">
+                <img src="demo/macbook_pro_1.jpg" title="MacBook pro" alt="MacBook pro"/>
+        </div>
+        
+        <br>
+        <br>
+
+        <p><span style="color: rgb(57, 132, 198); font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; "><br>Scroller with following flags: data-ascroller = "gallery condition full", and set width style, and several subelements</span></p>        
+        <div class="AScroller" data-ascroller="gallery condition full" style="width: 400px;">
+            <img src="demo/macbook_pro_1.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_2.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_3.jpg" title="MacBook pro" alt="MacBook pro"/>
+            <img src="demo/macbook_pro_4.jpg" title="MacBook pro" alt="MacBook pro"/>                
+        </div>
+
+
+        <br>
+        <br>
+        <br>
+
+        <p><span style="color: rgb(57, 132, 198); font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; ">Scroller with following flags: data-ascroller = "arrows condition full", and several subelements</span></p>
+
+        <div class="AScroller" data-ascroller="arrows condition full" style="height: 300px;">
+           
+            <a href="http://yandex.ru" style="width:400px;height:400px;font-size:20px;">link</a>
+            <img src="demo/macbook_air_2.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/macbook_air_3.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/macbook_air_4.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/macbook_pro_1.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/min.jpg" title="MIN" alt="MIN">
+            <img src="demo/macbook_pro_2.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/macbook_pro_3.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/macbook_pro_4.jpg" title="HP LP3065" alt="HP LP3065">
+            <img src="demo/sony_vaio_1.jpg"  title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_2.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/min.jpg" title="MIN" alt="MIN"/>
+            <img src="demo/sony_vaio_3.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_4.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+            <img src="demo/sony_vaio_5.jpg" title="Sony Vaio" alt="Sony Vaio"/>
+        </div>   
+            
+        <br>
+
+    </div>
+
+</body>
+</html>
