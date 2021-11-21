@@ -327,7 +327,7 @@ function AScroller(scroller_in, curElement){
             width = window.innerWidth;
             height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (scroller_in.condition && scroller_in.condition.offsetHeight) || 0 ) - (  scroller_in.mini ? scroller_in.mini.condition ? scroller_in.mini.offsetHeight + scroller_in.mini.condition.clientHeight : scroller_in.mini.offsetHeight : 0 );
           } else if( !nativeStyleHeight || gallery ){
-            scroll_i.children.cssScroller({'max-width': width + "px"})
+            scroll_i.children.cssScroller({'max-width': width + "px", 'max-height': height + "px"})
             height = scroller_area.offsetHeight;
           }
 
