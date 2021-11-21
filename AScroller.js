@@ -352,7 +352,7 @@ function AScroller(scroller_in, curElement){
 
           var s_width = scroller.offsetWidth;
           [scroller_in.arrow_next , scroller_in.arrow_prev].cssScroller({'display' : 'block'});
-          var top = ( height / 2) - ( (scroller_in.arrow_prev.offsetHeight || scroller_in.arrow_next.offsetHeight) /2 )+'px';
+          var top = ( ( scroller_area.offsetHeight ) / 2) - ( (scroller_in.arrow_prev.offsetHeight || scroller_in.arrow_next.offsetHeight) /2 )+'px'; 
           scroller_in.arrow_prev.cssScroller({'left': ( s_width + scroller_in.arrow_prev.offsetWidth * 1.5 < parentWidth ? -( scroller_in.arrow_prev.offsetWidth * 1.5 ) : ( scroller_in.arrow_prev.offsetWidth * 0.5 ) ) +'px', "top" : top});
           scroller_in.arrow_next.cssScroller({'right': ( s_width + scroller_in.arrow_next.offsetWidth * 1.5 < parentWidth ?  -( scroller_in.arrow_next.offsetWidth * 1.5 ) : ( scroller_in.arrow_next.offsetWidth * 0.5 ) ) +'px', "top" : top});
           [scroller_in.arrow_next , scroller_in.arrow_prev].cssScroller({'display' : ''});
