@@ -473,60 +473,79 @@ function AScroller(scroller_in, curElement){
       resize();
       window.addEventListener('resize', resize);
 
-      var onscroll = document.onscroll;
-      var onclick = scroller_in.onclick;
-
       function getMax(other){
 
         return (other ? other : scroller_in ).scrollWidth - (other ? other.scroller_area : scroller_area ).clientWidth;
         
       }
 
+      function event_off_move(e){
+        if(!moving) return;
+        
+        (e.preventDefault) ? e.preventDefault() : (e.returnValue = false) ;
+        return false;
+
+      }
+
       var moving;
 
+      scroller_in.addEventListener( 'click', event_off_move);
 
       function startmove(e){
+
+        moving = false;
         
         if( (e && e.button != undefined && e.button != 0) || (getMax() < 0) )return;
-        document.onscroll = onscroll;
-        scroller_in.onclick = onclick;
+
         var curCSS = curCss();  
         var elemX = (e.clientX!=undefined)?e.clientX : e.changedTouches[0].clientX;
-        
+        var elemY = (e.clientY!=undefined)?e.clientY : e.changedTouches[0].clientY;
         var max = - getMax();
-        if(!max ) return;
-
+        if( !max ) return;
+        
         var maxMoved = scroller_area.clientWidth / 5;
         var left = curCSS;
         var timeStamp = e.timeStamp;
         var se = e;
         scrollerStyle.mozTransitionDuration = scrollerStyle.oTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = '0s';
         scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
-        moving = false;
 
 
           function move(e){
 
-            moving = true;
-            left = curCSS +  ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
-            if(left <= max - maxMoved || left > maxMoved )return;
+            if( touches && !moving ){
+              var difY = ( ( (e.clientY!=undefined)? e.clientY : e.changedTouches[0].clientY) - elemY );
+              if( Math.abs(difY) > 5 ) { endmove(); return; };
+            }
+
+            var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
+            left = curCSS + difX;
+            if( Math.abs(difX) > 10 || moving )(e.preventDefault) ? e.preventDefault() : (e.returnValue = false) ;
+            if( !difX || left <= max - maxMoved || left > maxMoved )return;
+
+              moving = true 
+            
             scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
             
           }
+
           
           if(!touches)
-            window.addEventListener("mousemove", move)    
+            window.addEventListener("mousemove", move);    
           else
-            window.addEventListener("touchmove", move)
-          
+            window.addEventListener("touchmove", move, {passive: false});
+
           function endmove(e){
 
-            if( (moving)  && se)(se.preventDefault) ? se.preventDefault() : (se.returnValue = false) ;
+            if( moving && se)(se.preventDefault) ? se.preventDefault() : (se.returnValue = false) ;
+            
             window.removeEventListener("mousemove", move);
             window.removeEventListener("touchmove", move);
             window.removeEventListener("mouseup", endmove);
             window.removeEventListener("touchend", endmove);
+            
 
+            if( !e || e.clientX === undefined && e.changedTouches === undefined ) return;
             
             scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = transitionDuration;
            
@@ -542,10 +561,6 @@ function AScroller(scroller_in, curElement){
             else {
               moveTo('close')
             }
-
-            if( moving )
-              document.onscroll = scroller_in.onclick = function(){return false;};
-            
 
              
           }
@@ -563,7 +578,6 @@ function AScroller(scroller_in, curElement){
       else
         scroller_in.addEventListener("touchstart",  startmove)  
       
-    
 
     function moveTo(direction,e){
       if( (e && e.button != undefined && e.button != 0) || (getMax() < 0) || !direction )return;
