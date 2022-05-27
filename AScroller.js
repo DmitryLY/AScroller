@@ -510,28 +510,29 @@ function AScroller(scroller_in, curElement){
         scrollerStyle.mozTransitionDuration = scrollerStyle.oTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = '0s';
         scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
 
-
           function move(e){
 
-            if( touches && !moving ){
+            if(!moving){
               var difY = ( ( (e.clientY!=undefined)? e.clientY : e.changedTouches[0].clientY) - elemY );
-              if( Math.abs(difY) > 5 ) { endmove(); return; };
+              if( Math.abs(difY) > 5 ){ endmove(e); return; }
             }
-
-            var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
-            left = curCSS + difX;
-            if( Math.abs(difX) > 10 || moving )(e.preventDefault) ? e.preventDefault() : (e.returnValue = false) ;
-            if( !difX || left <= max - maxMoved || left > maxMoved )return;
-
-              moving = true 
             
-            scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
+            var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
+            if( !difX )return;
+
+            left = curCSS + difX;
+            moving = true; 
+
+            if( left > max - maxMoved && left <= maxMoved )
+              scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
+            
+            ( ( e.preventDefault) ? e.preventDefault() : (e.returnValue = false) );
             
           }
 
           
           if(!touches)
-            window.addEventListener("mousemove", move);    
+            window.addEventListener("mousemove", move, {passive: false});    
           else
             window.addEventListener("touchmove", move, {passive: false});
 
@@ -545,7 +546,7 @@ function AScroller(scroller_in, curElement){
             window.removeEventListener("touchend", endmove);
             
 
-            if( !e || e.clientX === undefined && e.changedTouches === undefined ) return;
+            if( ( e.clientX === undefined && e.changedTouches === undefined ) ) return;
             
             scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = transitionDuration;
            
