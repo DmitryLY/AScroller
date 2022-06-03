@@ -518,15 +518,16 @@ function AScroller(scroller_in, curElement){
             }
             
             var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
-            if( !difX )return;
+            if( difX ){
+              left = curCSS + difX;
+              moving = true; 
 
-            left = curCSS + difX;
-            moving = true; 
+              if( left > max - maxMoved && left <= maxMoved )
+                scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
+            }
 
-            if( left > max - maxMoved && left <= maxMoved )
-              scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
-            
-            ( ( e.preventDefault) ? e.preventDefault() : (e.returnValue = false) );
+            if(moving)
+              ( ( e.preventDefault) ? e.preventDefault() : (e.returnValue = false) );
             
           }
 
