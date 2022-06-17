@@ -515,12 +515,12 @@ function AScroller(scroller_in, curElement){
 
             if( touches && !moving ){
               var difY = ( ( (e.clientY!=undefined)? e.clientY : e.changedTouches[0].clientY) - elemY );
-              if( Math.abs(difY) > 5 ) { endmove(); return; };
+              if( Math.abs(difY) > 5 ) { endmove(e); return; };
             }
 
             var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
             left = curCSS + difX;
-            if( Math.abs(difX) > 10 || moving ) ( e.preventDefault  ? e.preventDefault() : (e.returnValue = false) ) ;
+            if( difX || moving ) ( e.preventDefault ? e.preventDefault() : (e.returnValue = false) ) ;
             if( !difX || left <= max - maxMoved || left > maxMoved )return;
 
               moving = true; 

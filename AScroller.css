@@ -159,10 +159,13 @@
     z-index: 101;
     cursor: pointer;
     font-size: 26px;
+    background: #ffffff8f;
+    border-radius: 50%;
   }
 
   .AScrollerBoxMax .closeBM:before{
     content: "\2715";
+    vertical-align: middle;
   }
 
   .AScrollerBoxMax .closeBM:hover::before{
