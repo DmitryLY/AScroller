@@ -47,8 +47,8 @@
   }
 
   .AScroller_miniImages > *{
-    max-width: 60px;
-    max-height: 60px;
+    width: 60px;
+    height: 60px;
     display: inline-block;
     vertical-align: middle;
   }
@@ -154,18 +154,15 @@
     width: 40px;
     height: 40px;
     position: absolute;
-    top: 5%;
-    right: 5%;
+    top: 20px;
+    right: 20px;
     z-index: 101;
     cursor: pointer;
     font-size: 26px;
-    border-radius: 50%;
-    background-color: #ffffffbf;
   }
 
   .AScrollerBoxMax .closeBM:before{
     content: "\2715";
-    line-height: 1.7;
   }
 
   .AScrollerBoxMax .closeBM:hover::before{

@@ -90,7 +90,7 @@ function AScroller(scroller_in, curElement){
     scroller.cssScroller( { 'width' : scroller_in.style.width} );
     
     scroller_area.cssScroller({'overflow':'hidden', 'cursor': 'pointer', 'margin' : 'auto'});
-    scroller_in.cssScroller({'overflow':'','padding':'0', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex' /*'block'*/, 'max-width' : 'unset' ,'align-items':'center', 'width': 'max-content'/*, 'white-space': 'nowrap'*/});
+    scroller_in.cssScroller({'overflow':''/*,'padding':'0'*/, 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex' /*'block'*/, 'max-width' : 'unset' ,'align-items':'center', 'width': 'max-content'/*, 'white-space': 'nowrap'*/});
     
     scroller.appendChild( scroller_area );
     
@@ -332,13 +332,13 @@ function AScroller(scroller_in, curElement){
             if( gallery && width )
               sc_i.cssScroller({'max-width' : width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" ,'width': width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" , "max-height" : height - (sc_i.dim.m_t + sc_i.dim.m_b) + "px"});
             else
-              scroll_i.children.cssScroller({ 'max-width' : width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" , "max-height" : height - (sc_i.dim.m_t + sc_i.dim.m_b) + "px" , "height" : "inherit"  });
+              scroll_i.children.cssScroller({ 'max-width' : width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" , "max-height" : height - (sc_i.dim.m_t + sc_i.dim.m_b) + "px" , "height" : "100%"  });
 
           }
 
           
           if( gallery && width ) [scroller,scroller_area].cssScroller({'width': width + 'px' });
-            [scroller_in,scroller_area].cssScroller({'height': height  + 'px' });
+            [scroller_in,scroller_area].cssScroller({'height': height + 'px' });
           
 
         scroller.cssScroller({'position':'relative'});
@@ -510,30 +510,28 @@ function AScroller(scroller_in, curElement){
         scrollerStyle.mozTransitionDuration = scrollerStyle.oTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = '0s';
         scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
 
+
           function move(e){
 
-            if(!moving){
+            if( touches && !moving ){
               var difY = ( ( (e.clientY!=undefined)? e.clientY : e.changedTouches[0].clientY) - elemY );
-              if( Math.abs(difY) > 5 ){ endmove(e); return; }
+              if( Math.abs(difY) > 5 ) { endmove(); return; };
             }
-            
+
             var difX = ( ( (e.clientX!=undefined)? e.clientX : e.changedTouches[0].clientX) - elemX );
-            if( difX ){
-              left = curCSS + difX;
+            left = curCSS + difX;
+            if( Math.abs(difX) > 10 || moving ) ( e.preventDefault  ? e.preventDefault() : (e.returnValue = false) ) ;
+            if( !difX || left <= max - maxMoved || left > maxMoved )return;
+
               moving = true; 
-
-              if( left > max - maxMoved && left <= maxMoved )
-                scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
-            }
-
-            if(moving)
-              ( ( e.preventDefault) ? e.preventDefault() : (e.returnValue = false) );
+            
+            scrollerStyle.mozTransform = scrollerStyle.oTransform = scrollerStyle.webkitTransform = scrollerStyle.transform = 'translateX('+left+'px)';
             
           }
 
           
           if(!touches)
-            window.addEventListener("mousemove", move, {passive: false});    
+            window.addEventListener("mousemove", move);    
           else
             window.addEventListener("touchmove", move, {passive: false});
 
@@ -547,7 +545,7 @@ function AScroller(scroller_in, curElement){
             window.removeEventListener("touchend", endmove);
             
 
-            if( ( e.clientX === undefined && e.changedTouches === undefined ) ) return;
+            if( !e || e.clientX === undefined && e.changedTouches === undefined ) return;
             
             scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = transitionDuration;
            
