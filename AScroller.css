@@ -38,7 +38,7 @@
 
   .AScroller > *{
     margin:10px;
-    /*padding:10px;*/
+    white-space: normal;
   }
 
   .AScrollerBoxMini{
@@ -53,41 +53,16 @@
     vertical-align: middle;
   }
 
-  .AScrollerBoxMax .AScroller_miniImages > *{
-    max-width: 80px;
-    max-height: 80px;
-  }
-
-  /*.AScroller > *{
-    vertical-align: middle;
-  }*/
-
-  /*
-  .AScroller_miniImages:before{
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50px;
-    height: 4px;
-    background-color: #add8e6;
-    transition: left 0.3s;
-  }
-  */
-
   .AScroller_miniImages{
     height: 60px;
   }
 
   .AScroller_miniImages > *{
-    margin: 5px;
+    padding: 5px;
   }
 
   .AScroller_miniImages .curElementMini{
     position: relative;
-   /* outline: 1px solid #6b8e23;
-    outline-offset: -2px;
-    border-radius: 3px;*/
   }
 
   .AScrollerCondition{
@@ -125,8 +100,6 @@
   }
 
   .Ascroller_box_flex > img{
-    max-width:inherit !important;
-    max-height: inherit !important;
     vertical-align: middle;
     margin: auto;
   }
@@ -146,7 +119,6 @@
     border-bottom: 2px solid #2f9fd3;
     background-color: rgba(255, 255, 255, 0.385);
   }
-    
     
 
  .AScrollerBoxMax .closeBM{

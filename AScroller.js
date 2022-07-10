@@ -8,7 +8,7 @@ window.addEventListener( 'load', function(e){
   if( !scrollers.length )return;
   
   var touches = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  var AScrollerBoxMax, AScrollerBox, curElementBX;
+  var AScrollerBoxMax, keyArrows, AScrollerBox, curElementBX;
 
   HTMLElement.__proto__.cssScroller = HTMLElement.prototype.cssScroller = Array.prototype.cssScroller = HTMLCollection.prototype.cssScroller = function cssScroller(styles){
 
@@ -73,7 +73,8 @@ function AScroller(scroller_in, curElement){
   }
   
     var parent = scroller_in.parentElement;  
-    var scroller = document.createElement('div'); scroller.className = (scroller_in.parent && "AScrollerBoxMini" ) || "AScrollerBox";
+    var scroller = document.createElement('div'); 
+    scroller.className = (scroller_in.parent && "AScrollerBoxMini" ) || "AScrollerBox";
 
     scroller_in.parentNode.insertBefore( scroller , scroller_in );
 
@@ -87,11 +88,10 @@ function AScroller(scroller_in, curElement){
     scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = transitionDuration;
     
 
-    scroller.cssScroller( { 'width' : scroller_in.style.width} );
-    
+    scroller.cssScroller({ 'width' : scroller_in.style.width , 'position':'relative'});
+
     scroller_area.cssScroller({'overflow':'hidden', 'cursor': 'pointer', 'margin' : 'auto'});
-    scroller_in.cssScroller({'overflow':''/*,'padding':'0'*/, 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex' /*'block'*/, 'max-width' : 'unset' ,'align-items':'center', 'width': 'max-content'/*, 'white-space': 'nowrap'*/});
-    
+
     scroller.appendChild( scroller_area );
     
     scroller_area.appendChild( scroller_in );
@@ -125,7 +125,16 @@ function AScroller(scroller_in, curElement){
           AScrollerBoxMax = BoxMax;
 
           var overflow = document.documentElement.style.overflow;
-          close.addEventListener("click", function(){ document.documentElement.style.overflow = overflow; BoxMax.remove(); AScrollerBoxMax = null; });
+
+          close.addEventListener("click", function(){ 
+            document.documentElement.style.overflow = overflow; 
+            BoxMax.remove(); 
+            AScrollerBoxMax = null; 
+            window.removeEventListener("keydown", keyArrows)
+          });
+
+          if( keyArrows )
+            window.addEventListener("keydown", keyArrows)
 
           document.body.appendChild(BoxMax);
 
@@ -178,7 +187,7 @@ function AScroller(scroller_in, curElement){
           scroller_in.scroller_area = scroller_area;
           scroller_in.mini = mini_images;
           mini_images.parent = scroller_in;
-          mini_images.style.width = d_x > 0 ? d_x * ( parseInt(window.getComputedStyle(mini_images.children[0]).width) ) + "px" : ""; 
+          mini_images.style.width = d_x > 0 ? ( d_x < i ? d_x : i) * ( parseInt(window.getComputedStyle(mini_images.children[0]).width) ) + "px" : ""; 
           if(condition)mini_images.condition = condition;
 
           init(mini_images);
@@ -266,50 +275,47 @@ function AScroller(scroller_in, curElement){
 
       }
 
-      function resize(scroll_i){
+      function resize(){
 
-        var scroll_i = scroller_in, sc_i;
-
+        var sc_i;
         
-        scroll_i.children.cssScroller({ 'width' : '' , 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left":"","padding-right":"","padding-top":"","padding-bottom":""});
+        scroller_in.children.cssScroller({ 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left":"","padding-right":"","padding-top":"","padding-bottom":""});
         [scroller,scroller_in,scroller_area].cssScroller({'height' : ''});
+        scroller_in.cssScroller({'display' : 'block'});
 
-            var width = 0;
-            var height = 0;
-            var max_w_el , max_h_el, max_m_b = 0, max_m_t = 0, max_m_l = 0, max_m_r = 0;
+            var width = 0, height = 0;
 
-          
-            for(var i = 0; i < scroll_i.children.length; i++){
-              sc_i = scroll_i.children[i]; 
+            for(var i = 0; i < scroller_in.children.length; i++){
+              sc_i = scroller_in.children[i]; 
+              var get_c = window.getComputedStyle(sc_i);
+              sc_i.dim = {};
+              var m_l = parseInt( get_c.marginLeft );
+              var m_r = parseInt( get_c.marginRight );
 
-              var m_l = parseInt( window.getComputedStyle(sc_i).marginLeft );
-              var m_r = parseInt( window.getComputedStyle(sc_i).marginRight );
-    
                 var width_i = sc_i.offsetWidth + m_l + m_r;
                 if( width_i > width ){
                   width = width_i ;
-                  max_w_el = sc_i;
                 } 
 
-                var m_t = parseInt( window.getComputedStyle(sc_i).marginBottom );
-                var m_b = parseInt( window.getComputedStyle(sc_i).marginTop );
+                var m_t = parseInt( get_c.marginBottom );
+                var m_b = parseInt( get_c.marginTop );
 
                 var height_i = sc_i.offsetHeight + m_t + m_b;
               if( height_i > height ){
                   height = height_i ;
-                  max_h_el = sc_i;
                 }
 
-                sc_i.dim = {m_l: m_l, m_r: m_r, m_t: m_t, m_b: m_b};
+                sc_i.dim.margin = {l: m_l, r: m_r, t: m_t, b: m_b};
+                sc_i.dim.padding = {l: parseInt( get_c.paddingLeft ), r: parseInt( get_c.paddingRight ), t: parseInt( get_c.paddingTop ), b: parseInt( get_c.paddingBottom )};
               
             }
 
+            scroller_in.cssScroller({'display' : 'flex'});
+
           if( nativeStyleWidth && nativeStyleWidth < width )
             width = nativeStyleWidth;
-
         
         var parentWidth = parent.offsetWidth - parseInt(window.getComputedStyle(parent).paddingLeft) - parseInt(window.getComputedStyle(parent).paddingRight);
-
 
         if( nativeStyleHeight && nativeStyleHeight < height )
           height = nativeStyleHeight;
@@ -317,31 +323,44 @@ function AScroller(scroller_in, curElement){
           
         if( width > parentWidth ) width = parentWidth;
           
-
           if( AScrollerBox === scroller_in ){
             width = window.innerWidth;
             height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (scroller_in.condition && scroller_in.condition.offsetHeight) || 0 ) - (  scroller_in.mini ? scroller_in.mini.condition ? scroller_in.mini.offsetHeight + scroller_in.mini.condition.clientHeight : scroller_in.mini.offsetHeight : 0 );
           } else if( !nativeStyleHeight || gallery ){
-            scroll_i.children.cssScroller({'max-width': width + "px", 'max-height': height + "px"})
+            scroller_in.children.cssScroller({'max-width': width + "px", 'max-height': height + "px"})
             height = scroller_area.offsetHeight;
           }
 
-          for(var i = 0; i < scroll_i.children.length; i++){
-            sc_i = scroll_i.children[i];  
-            
-            if( gallery && width )
-              sc_i.cssScroller({'max-width' : width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" ,'width': width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" , "max-height" : height - (sc_i.dim.m_t + sc_i.dim.m_b) + "px"});
-            else
-              scroll_i.children.cssScroller({ 'max-width' : width - (sc_i.dim.m_l + sc_i.dim.m_r) + "px" , "max-height" : height - (sc_i.dim.m_t + sc_i.dim.m_b) + "px" , "height" : "100%"  });
+          for(var i = 0; i < scroller_in.children.length; i++){
+            sc_i = scroller_in.children[i];  
+            var offset_m_w = ( sc_i.dim.margin.l + sc_i.dim.margin.r ) || 0;
+            var offset_m_h = ( sc_i.dim.margin.t + sc_i.dim.margin.b ) || 0;
+            var offset_p_w = ( sc_i.dim.padding.t + sc_i.dim.padding.b ) || 0;
+            var offset_p_h = ( sc_i.dim.padding.t + sc_i.dim.padding.b ) || 0;
 
+            sc_i.children.cssScroller( { 'max-width' : width - offset_m_w - offset_p_w + "px " , "max-height" : height - offset_m_h - offset_p_h + "px " } );
+
+            var style_o = { 'max-width' : width - offset_m_w + "px" , "max-height" : height - offset_m_h + "px" }
+            
+            if( ( gallery && width ) || scroller_in.parent )
+              style_o['min-width'] = width - offset_m_w + "px";
+            else
+              style_o['height'] = "100%";
+            
+              sc_i.cssScroller(style_o);
           }
 
           
-          if( gallery && width ) [scroller,scroller_area].cssScroller({'width': width + 'px' });
+          if( gallery && width )
+            [scroller,scroller_area].cssScroller({'width': width + 'px' });
+
             [scroller_in,scroller_area].cssScroller({'height': height + 'px' });
           
 
-        scroller.cssScroller({'position':'relative'});
+        
+        scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap' /*, 'max-width' : 'unset'*/ ,'align-items':'center', /*'width': 'max-content',*/ 'white-space': 'nowrap'});
+        
+        scroller_in.children.cssScroller({ 'overflow': 'unset' });
         
         var toCur = curElement.offsetLeft - parseInt( window.getComputedStyle(curElement).marginLeft ) ;
 
@@ -355,8 +374,6 @@ function AScroller(scroller_in, curElement){
           [scroller_in.arrow_next , scroller_in.arrow_prev].cssScroller({'display' : ''});
 
         }
-
-        
 
         moveScroller(true, toCur );
 
@@ -373,20 +390,20 @@ function AScroller(scroller_in, curElement){
           }
             
         }
-
         
         if(!scroller_in.children.length) return;
-
           
           var elem = ( (scroller_in.parent && curElementMini) || curElement);
           var max;
 
-
           function toCurMove(elem, scroller_in, left){
             var toCur = left || elem.offsetLeft - parseInt( window.getComputedStyle(elem).marginLeft ) ;
+            
             var max = getMax(scroller_in);
+            
             if( toCur > max ) toCur = max;
             if( toCur <= 0 ) toCur = 0; 
+
             scroller_in.cssScroller({'mozTransform': 'translateX('+( - toCur )+'px)','oTransform': 'translateX('+( - toCur )+'px)','webkitTransform': 'translateX('+( - toCur )+'px)', 'transform': 'translateX('+( - toCur )+'px)'});
           }
 
@@ -471,12 +488,20 @@ function AScroller(scroller_in, curElement){
       }
       
       resize();
+
       window.addEventListener('resize', resize);
 
       function getMax(other){
+        other = other || scroller_in;
+        var width = 0;
+
+        for( var i = 0, el = other.children[i]; i < other.children.length; el = other.children[++i])
+         width += el.offsetWidth + parseFloat(window.getComputedStyle(el).marginLeft) + parseFloat(window.getComputedStyle(el).marginRight);
+
+        return width - (other ? other.scroller_area : scroller_area ).clientWidth;
+
 
         return (other ? other : scroller_in ).scrollWidth - (other ? other.scroller_area : scroller_area ).clientWidth;
-        
       }
 
       function event_off_move(e){
@@ -634,23 +659,57 @@ function AScroller(scroller_in, curElement){
         else
           curElementMini = elemCycle;
 
-
         moveScroller(true, left)
         
     }
 
+
+    if( scroller_in === AScrollerBox ){
+    
+      keyArrows = (function(e){
+          
+        var access = false;
+        var tm = []
+
+        function reset(){
+          for(var i = 0; i < tm.length; i++)
+            clearTimeout(tm[i])
+
+          access = false;
+        }
+
+        return function keyArrows( e ){
+
+          if( !AScrollerBoxMax ) return;
+          
+          var where = ( e.keyCode === 39 && 'next' ) || ( e.keyCode === 37 && 'previous' );
+          if( !where || access === where ) return;
+          access = where;
+          
+          moveTo( where );
+          tm.push( setTimeout( reset , 600) );
+          
+        };
+
+      })();
+
+      window.addEventListener( 'keydown' , keyArrows );
+
+    }
+
+    
   if(scroller_in.arrow_next){
     if(!touches)
       scroller_in.arrow_next.addEventListener('mousedown', moveTo.bind(null,'next'));
     else
-    scroller_in.arrow_next.addEventListener('touchstart', moveTo.bind(null,'next'));
+      scroller_in.arrow_next.addEventListener('touchstart', moveTo.bind(null,'next'));
   }
 
   if(scroller_in.arrow_prev){
     if(!touches)
-    scroller_in.arrow_prev.addEventListener('mousedown', moveTo.bind(null,'previous'));
+      scroller_in.arrow_prev.addEventListener('mousedown', moveTo.bind(null,'previous'));
     else
-    scroller_in.arrow_prev.addEventListener('touchstart', moveTo.bind(null,'previous'));
+      scroller_in.arrow_prev.addEventListener('touchstart', moveTo.bind(null,'previous'));
   }
 
 
