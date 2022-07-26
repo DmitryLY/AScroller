@@ -74,9 +74,9 @@
     display: inline-block;
     margin: 4px;
     background-color: rgb(223, 241, 241);
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+    width: 10px;
+    height: 2px;
+    transition: background-color 0.5s ease 0s;
   }
 
   .AScrollerCondition > *.curCondition{

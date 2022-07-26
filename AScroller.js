@@ -433,14 +433,14 @@ function AScroller(scroller_in, curElement){
           
           ref_condition.style.display = "block";
 
-          ref_condition.innerHTML = "";
-          
+          var ref_condition_pre = document.createElement("DIV");
           
 
           var el = ( scroller_in.parent || scroller_in).children[0];
           var sim_curCss = 0;
           var max = getMax( scroller_in.parent || scroller_in)
           var clsnm = "curCondition"
+          var index_cur_condition;
 
           while(el){
             var el_R = el.offsetLeft + el.offsetWidth + parseInt( window.getComputedStyle(el).marginRight );
@@ -448,21 +448,35 @@ function AScroller(scroller_in, curElement){
             if( el_R > sim_curCss ){
               
                 var el_C = document.createElement("DIV");
-                ref_condition.appendChild( el_C );
+                ref_condition_pre.appendChild( el_C );
               
               sim_curCss += scroller_area.clientWidth;
             }
-            if( el_C && clsnm && ( el === curElement ) )el_C.className = clsnm, clsnm = undefined;
+            if( el_C && clsnm && ( el === curElement ) ) el_C.className = clsnm , clsnm = undefined , index_cur_condition = ref_condition_pre.children.length - 1 ;
             
             el = el.nextElementSibling;
           }
+
+          if( ref_condition_pre.children.length < 2 ){
+            ref_condition.innerHTML = "";
+          }else if( ref_condition.children.length !== ref_condition_pre.children.length ){
+            ref_condition.innerHTML = "";
+
+            for( ;ref_condition_pre.children.length; )
+              ref_condition.appendChild( ref_condition_pre.children[0] );
+
+          }else if( index_cur_condition !== undefined ){
+            for( var i = 0 ; ref_condition.children.length > i ; i++ )
+              console.log( ref_condition.children[i].className , ref_condition_pre.children[i].className ) , ( ref_condition.children[i].className = ref_condition_pre.children[i].className );
+          }
+
+          ref_condition_pre = null;
 
           ref_condition.style.display = "";
 
           ref_condition.style.height = window.getComputedStyle( ref_condition ).height;
         
-          if(ref_condition.children.length < 2)
-            ref_condition.style.display = 'none';
+         
         }
 
 
@@ -500,8 +514,6 @@ function AScroller(scroller_in, curElement){
 
         return width - (other ? other.scroller_area : scroller_area ).clientWidth;
 
-
-        return (other ? other : scroller_in ).scrollWidth - (other ? other.scroller_area : scroller_area ).clientWidth;
       }
 
       function event_off_move(e){
