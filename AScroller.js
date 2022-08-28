@@ -1,4 +1,4 @@
-// Copyright © 2021 Dmitry Y. Lepikhin. All rights reserved.
+// Copyright © 2021-2022 Dmitry Y. Lepikhin. All rights reserved.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,15 +25,17 @@ window.addEventListener( 'load', function(e){
     }
 
   for(var i = 0;i < scrollers.length; i++){
-      AScroller ( scrollers[i]);
+      AScroller ( scrollers[i] );
   }
 
-
-function AScroller(scroller_in, curElement){
   
-  var curElementMini;
 
-  if(!curElement)
+function AScroller(scroller_in, curElement_){
+  
+  var big_scroller, mini_scroller, condition, set_condition, toCurMove_funcs = [], arrows_funcs = [], big_mini_elements = [], set_cur_element_funcs = [];
+
+  
+
     for(var i = 0; i < scroller_in.children.length; i++){
       var el = scroller_in.children[i];
       if(el.tagName !== "IMG")continue;
@@ -44,12 +46,28 @@ function AScroller(scroller_in, curElement){
       scroller_in.insertBefore( box_flex , el );
       box_flex.appendChild( el );
     }
+
+    big_scroller = scroller_in;
   
-  curElement = curElement || scroller_in.children[0];
   init(scroller_in);
+
+  function set_cur_element_func( elem , left ){
+
+    for( var i = 0; i < set_cur_element_funcs.length; i++)
+      set_cur_element_funcs[i]( elem , left );
+
+
+    for (var i = 0; i < big_mini_elements.length; i++){
+      big_mini_elements[i][1].className = big_mini_elements[i][1].className.replace(/(^|\s+)curElementMini\b/, '');
+      if( big_mini_elements[i].indexOf( elem ) !== -1 )
+        big_mini_elements[i][1].className += ' curElementMini';
+    }
+
+  }
 
   function init(scroller_in){
 
+    var curElement = curElement_ || scroller_in.children[0];
 
     var nativeStyleWidth = parseInt( scroller_in.style.width ) || parseInt( scroller_in.style.maxWidth )  || parseInt( window.getComputedStyle(scroller_in).width ) ;
     var nativeStyleHeight = parseInt( scroller_in.style.height ) || parseInt( scroller_in.style.maxHeight ) || parseInt( window.getComputedStyle(scroller_in).height ) ;
@@ -63,9 +81,9 @@ function AScroller(scroller_in, curElement){
       var gallery = data_ascroller.search(/(^|\s+)gallery\b/) !== -1 ? true : false;
 
       if(gallery)
-        var mini_images = data_ascroller.match(/(^|\s+)mini-images(X(\d)+)*\b/i);
+        mini_scroller_flag = data_ascroller.match(/(^|\s+)mini-scroller(X(\d)+)*\b/i);
       
-      var condition = data_ascroller.search(/(^|\s+)condition\b/) !== -1 ? true : false;
+      var condition_flag = data_ascroller.search(/(^|\s+)condition\b/) !== -1 ? true : false;
       var full = data_ascroller.search(/(^|\s+)full\b/) !== -1 ? true : false;
       var loupe = data_ascroller.search(/(^|\s+)loupe\b/) !== -1 ? true : false;
       var arrows = !touches && data_ascroller.search(/(^|\s+)arrows\b/) !== -1 ? true : false;
@@ -74,7 +92,32 @@ function AScroller(scroller_in, curElement){
     
       var parent = scroller_in.parentElement;  
       var scroller = document.createElement('div'); 
-      scroller.className = (scroller_in.parent && "AScrollerBoxMini" ) || "AScrollerBox";
+      scroller.className = ( scroller_in === mini_scroller && "AScrollerBoxMini" ) || "AScrollerBox";
+
+      if( scroller_in === mini_scroller ){
+
+        function changeImages(e){
+          if( moving ) return;
+          set_cur_element_func( this );
+          moveScroller();
+        }
+
+        for (var i = 0; i < scroller_in.children.length; i++){
+          if(scroller_in.children[i].children[0].tagName !== "IMG") continue;
+          scroller_in.children[i].addEventListener( touches ? "touchstart" : "click", changeImages)
+          
+        }
+
+        set_cur_element_funcs.push( function( elem , left ){
+          for (var i = 0; i < big_mini_elements.length; i++)
+              if( big_mini_elements[i].indexOf( elem ) !== -1 ){
+                curElement = big_mini_elements[i][1];
+                moveScroller();
+                return;
+              }
+        });
+
+      }
 
       scroller_in.parentNode.insertBefore( scroller , scroller_in );
 
@@ -97,7 +140,7 @@ function AScroller(scroller_in, curElement){
       scroller_area.appendChild( scroller_in );
 
 
-      if(condition){
+      if( condition_flag ){
 
         condition = document.createElement("DIV");
         condition.className = "AScrollerCondition";
@@ -105,6 +148,55 @@ function AScroller(scroller_in, curElement){
         condition.appendChild( el_C );
         
         ( scroller_area.nextElementSibling && scroller.insertBefore(condition , scroller_area.nextElementSibling ) ) || scroller.appendChild( condition );
+
+        set_condition = function(){ 
+            
+          condition.style.display = "block";
+
+          var condition_pre = document.createElement("DIV");
+          
+          var el = big_scroller.children[0];
+          var sim_curCss = 0;
+          var clsnm = "curCondition"
+          var index_cur_condition;
+
+          while(el){
+            var el_R = el.offsetLeft + el.offsetWidth + parseInt( window.getComputedStyle(el).marginRight );
+            
+            if( el_R > sim_curCss ){
+              
+                var el_C = document.createElement("DIV");
+                condition_pre.appendChild( el_C );
+              
+              sim_curCss += scroller_area.clientWidth;
+            }
+            if( el_C && clsnm && ( el === curElement ) ) el_C.className = clsnm , clsnm = undefined , index_cur_condition = condition_pre.children.length - 1 ;
+            
+            el = el.nextElementSibling;
+          }
+          
+
+          if( condition_pre.children.length < 2 ){
+            condition.innerHTML = "";
+          }else if( condition_pre.children.length !== condition.children.length ){
+            condition.innerHTML = "";
+
+            for( ;condition_pre.children.length; )
+              condition.appendChild( condition_pre.children[0] );
+
+          }else if( index_cur_condition !== undefined ){
+            for( var i = 0 ; condition_pre.children.length > i ; i++ )
+              condition.children[i].className = condition_pre.children[i].className;
+          }
+
+          condition_pre = null;
+
+          condition.style.display = "";
+
+          condition.style.height = window.getComputedStyle( condition ).height;
+          
+        
+        };
 
       }
 
@@ -139,7 +231,7 @@ function AScroller(scroller_in, curElement){
             document.body.appendChild(BoxMax);
 
             var box = document.createElement("DIV");
-            box.setAttribute("data-ascroller",  "gallery" + (!touches ? " mini-imagesx5 arrows" : "") + " condition");
+            box.setAttribute("data-ascroller",  "gallery" + (!touches ? " mini-scrollerx5 arrows" : "") + " condition");
             var parent = this.parentNode.children;
             for(var i = 0; i < parent.length; i++){
               if( !parent[i].children[0] || parent[i].children[0].tagName !== "IMG" )continue;
@@ -161,60 +253,51 @@ function AScroller(scroller_in, curElement){
           if( full && sc.children[0] && sc.children[0].tagName === "IMG" )
             scroller_in.children[i].addEventListener('click', fullBox);
         }
+
       }
 
       if(gallery){
-
         
-        
-        if( !touches && mini_images && scroller_in.children.length > 1){
-          var d_x = mini_images[3];
+        if( !touches && mini_scroller_flag && !mini_scroller && scroller_in.children.length > 1){
+          (function(){
+              var d_x = mini_scroller_flag[3];
 
-          var mini_images = document.createElement("DIV");
-          mini_images.className = "AScroller_miniImages";
-          mini_images.setAttribute("data-ascroller",  "arrows");
-          for (var i = 0; i < scroller_in.children.length; i++){
-            if(scroller_in.children[i].children[0].tagName !== "IMG") continue;
-            scroller_in.children[i].mini = scroller_in.children[i].cloneNode(true);
-            scroller_in.children[i].mini.style = '';
-            scroller_in.children[i].mini.big = scroller_in.children[i];
-            mini_images.appendChild( scroller_in.children[i].mini );
-          }
+            set_cur_element_funcs.push( function( elem , left ){
+              for (var i = 0; i < big_mini_elements.length; i++)
+                  if( big_mini_elements[i].indexOf( elem ) !== -1 ){
+                    curElement = big_mini_elements[i][0];
+                    moveScroller( left );
+                    return;
+                  }
+            });
 
-          if(mini_images.children.length){
+            mini_scroller = document.createElement("DIV");
+            mini_scroller.className = "AScroller_miniImages";
+            mini_scroller.setAttribute("data-ascroller",  "arrows");
+            
+              for (var i = 0; i < scroller_in.children.length; i++){
+                if(scroller_in.children[i].children[0].tagName !== "IMG") continue;
+                var mini = scroller_in.children[i].cloneNode(true);
+                mini.style = '';
+                big_mini_elements.push( [ scroller_in.children[i] , mini ] );
+                mini_scroller.appendChild( mini );
+              }
+            
 
-            scroller.appendChild( mini_images );
-            scroller_in.scroller_area = scroller_area;
-            scroller_in.mini = mini_images;
-            mini_images.parent = scroller_in;
-            mini_images.style.width = d_x > 0 ? ( d_x < i ? d_x : i) * ( parseInt(window.getComputedStyle(mini_images.children[0]).width) ) + "px" : ""; 
-            if(condition)mini_images.condition = condition;
+            if(mini_scroller.children.length){
 
-            init(mini_images);
-          
-          }
+              scroller.appendChild( mini_scroller );
+              mini_scroller.style.width = d_x > 0 ? ( d_x < i ? d_x : i) * ( parseInt(window.getComputedStyle(mini_scroller.children[0]).width) ) + "px" : ""; 
 
+              init(mini_scroller);
+              resize();
+            }
+          })();
         }
 
       }
 
-      if(scroller_in.parent){
-
-        function changeImages(e){
-          if( moving || !this.big ) return;
-          curElement = this.big;
-          curElementMini = this;
-          moveScroller(e);
-        }
-
-        for (var i = 0; i < scroller_in.children.length; i++){
-          if(scroller_in.children[i].children[0].tagName !== "IMG") continue;
-          scroller_in.children[i].addEventListener( touches ? "touchstart" : "click", changeImages)
-          
-        }
-
-      }
-
+      
       scroller.cssScroller({
         'position':'relative'
       });
@@ -225,13 +308,9 @@ function AScroller(scroller_in, curElement){
       var max = getMax() ;
       var curCSS = curCss();
 
-      if(scroller_in.parent){
-        curElementMini = scroller_in.children[0] || null;
-      }
+      function curCss( style , prev ){
 
-      function curCss( style , scroller_ , prev ){
-
-        var styleScrollerIn = style ? ( scroller_ || scroller_in ).style : window.getComputedStyle( ( scroller_ || scroller_in ) );
+        var styleScrollerIn = style ? scroller_in.style : window.getComputedStyle( scroller_in );
         var curCSS = 0;
         var elems = scroller_in.children;
         var el_style;
@@ -256,94 +335,85 @@ function AScroller(scroller_in, curElement){
     
         if( arrows ){
 
-          scroller_in.arrow_prev = document.createElement('div'); scroller_in.arrow_prev.setAttribute('class', 'arrows prev');
-          scroller_in.arrow_next = document.createElement('div'); scroller_in.arrow_next.setAttribute('class', 'arrows next');
+          var arrow_next, arrow_prev;
 
-          scroller.appendChild(scroller_in.arrow_prev);
-          scroller.appendChild(scroller_in.arrow_next);
+          arrow_prev = document.createElement('div'); arrow_prev.className =  'arrows prev';
+          arrow_next = document.createElement('div'); arrow_next.className = 'arrows next';
 
-          if( scroller_in.mini || !scroller_in.parent ){
-            scroller_in.arrow_next.innerHTML = '    <svg width="19" height="16" viewBox="0 0 19 16">    <path d="M18.7071 8.70711C19.0976 8.31658 19.0976 7.68342 18.7071 7.29289L12.3431 0.928932C11.9526 0.538408 11.3195 0.538408 10.9289 0.928932C10.5384 1.31946 10.5384 1.95262 10.9289 2.34315L16.5858 8L10.9289 13.6569C10.5384 14.0474 10.5384 14.6805 10.9289 15.0711C11.3195 15.4616 11.9526 15.4616 12.3431 15.0711L18.7071 8.70711ZM0 9H18V7H0V9Z" />    </svg>    ';
-            scroller_in.arrow_prev.innerHTML = '    <svg width="19" height="16" viewBox="0 0 19 16"">    <path transform="rotate(-180 9.499987602233887,8.000007629394531) " d="m18.7071,8.70711c0.3905,-0.39053 0.3905,-1.02369 0,-1.41422l-6.364,-6.36396c-0.3905,-0.39052 -1.0236,-0.39052 -1.4142,0c-0.3905,0.39053 -0.3905,1.02369 0,1.41422l5.6569,5.65685l-5.6569,5.6569c-0.3905,0.3905 -0.3905,1.0236 0,1.4142c0.3906,0.3905 1.0237,0.3905 1.4142,0l6.364,-6.36399zm-18.7071,0.29289l18,0l0,-2l-18,0l0,2z" />    </svg>    ';
-          }else if( scroller_in.parent ){
-            scroller_in.arrow_next.innerHTML = '    <svg width="19" height="16" viewBox="4 0 19 16">    <path d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
-            scroller_in.arrow_prev.innerHTML = '    <svg width="19" height="16" viewBox="-4 0 19 16"">    <path transform="rotate(-180 9.499987602233887,8.000007629394531) " d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
-          }
+          scroller.appendChild(arrow_prev);
+          scroller.appendChild(arrow_next);
 
-          scroller_in.arrow_prev.ondragstart = scroller_in.arrow_prev.ondrop = scroller_in.arrow_prev.onselectstart = function(){return false;};
-          scroller_in.arrow_next.ondragstart = scroller_in.arrow_next.ondrop = scroller_in.arrow_next.onselectstart = function(){return false;};
+          arrow_next.innerHTML = '    <svg width="19" height="16" viewBox="4 0 19 16">    <path d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
+          arrow_prev.innerHTML = '    <svg width="19" height="16" viewBox="-4 0 19 16"">    <path transform="rotate(-180 9.499987602233887,8.000007629394531) " d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
+
+          arrow_prev.ondragstart = arrow_prev.ondrop = arrow_prev.onselectstart = function(){return false;};
+          arrow_next.ondragstart = arrow_next.ondrop = arrow_next.onselectstart = function(){return false;};
 
         }
 
         function resize(){
 
-          var sc_i;
+          var sc_i , width = 0, height = 0, dimensions = [], children = [].slice.call( scroller_in.children );
           
-          scroller_in.children.cssScroller({ 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left":"","padding-right":"","padding-top":"","padding-bottom":""});
-          [scroller,scroller_in,scroller_area].cssScroller({'height' : ''});
+          children.cssScroller({ 'box-sizing': 'border-box' , 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left" : "" , "padding-right" : "" , "padding-top" : "" , "padding-bottom" : "" });
+          [scroller,scroller_in,scroller_area].cssScroller({ 'height' : '' });
           scroller_in.cssScroller({'display' : 'block'});
 
-              var width = 0, height = 0;
+            for(var i = 0; i < children.length; i++){
+              sc_i = children[i]; 
+              sc_i.children.cssScroller( { 'max-width' : "" , "max-height" : "" } );
+              var get_c = window.getComputedStyle(sc_i);
+              var dim = {};
+              dimensions.push( dim );
 
-              for(var i = 0; i < scroller_in.children.length; i++){
-                sc_i = scroller_in.children[i]; 
-                var get_c = window.getComputedStyle(sc_i);
-                sc_i.dim = {};
-                var m_l = parseInt( get_c.marginLeft );
-                var m_r = parseInt( get_c.marginRight );
+              dim.margin = {h: parseInt( get_c.marginLeft ) + parseInt( get_c.marginRight ), v: parseInt( get_c.marginBottom ) + parseInt( get_c.marginTop )};
+              dim.padding = {h: parseInt( get_c.paddingLeft ) + parseInt( get_c.paddingRight ), v: parseInt( get_c.paddingTop ) + parseInt( get_c.paddingBottom )};
 
-                  var width_i = sc_i.offsetWidth + m_l + m_r;
-                  if( width_i > width ){
-                    width = width_i ;
-                  } 
+              var width_i = sc_i.offsetWidth + dim.margin.h;
+              if( width_i > width )
+                  width = width_i ;
 
-                  var m_t = parseInt( get_c.marginBottom );
-                  var m_b = parseInt( get_c.marginTop );
-
-                  var height_i = sc_i.offsetHeight + m_t + m_b;
-                if( height_i > height ){
-                    height = height_i ;
-                  }
-
-                  sc_i.dim.margin = {l: m_l, r: m_r, t: m_t, b: m_b};
-                  sc_i.dim.padding = {l: parseInt( get_c.paddingLeft ), r: parseInt( get_c.paddingRight ), t: parseInt( get_c.paddingTop ), b: parseInt( get_c.paddingBottom )};
+              var height_i = sc_i.offsetHeight + dim.margin.v;
+              if( height_i > height )
+                  height = height_i ;
                 
-              }
+            }
 
-              scroller_in.cssScroller({'display' : 'flex'});
+            scroller_in.cssScroller({'display' : 'flex'});
 
             if( nativeStyleWidth && nativeStyleWidth < width )
               width = nativeStyleWidth;
           
-          var parentWidth = parent.offsetWidth - parseInt(window.getComputedStyle(parent).paddingLeft) - parseInt(window.getComputedStyle(parent).paddingRight);
-
-          if( nativeStyleHeight && nativeStyleHeight < height )
-            height = nativeStyleHeight;
+            var parentWidth = parent.offsetWidth - parseInt(window.getComputedStyle(parent).paddingLeft) - parseInt(window.getComputedStyle(parent).paddingRight);
+            var parentHeight = parent.offsetHeight - parseInt(window.getComputedStyle(parent).paddingBottm) - parseInt(window.getComputedStyle(parent).paddingTop);
             
-            
-          if( width > parentWidth ) width = parentWidth;
             
             if( AScrollerBox === scroller_in ){
               width = window.innerWidth;
-              height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (scroller_in.condition && scroller_in.condition.offsetHeight) || 0 ) - (  scroller_in.mini ? scroller_in.mini.condition ? scroller_in.mini.offsetHeight + scroller_in.mini.condition.clientHeight : scroller_in.mini.offsetHeight : 0 );
-            } else if( !nativeStyleHeight || gallery ){
-              scroller_in.children.cssScroller({'max-width': width + "px", 'max-height': height + "px"})
-              height = scroller_area.offsetHeight;
+              height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (mini_scroller && mini_scroller.offsetHeight) || 0 );
+            }else{
+
+              if( nativeStyleHeight && nativeStyleHeight < height )
+                height = nativeStyleHeight;
+              
+              if( nativeStyleWidth && nativeStyleWidth < width )
+                width = nativeStyleWidth;
+              
+              if( width > parentWidth ) width = parentWidth;
+              if( height > parentHeight ) height = parentHeight;
+              
             }
 
-            for(var i = 0; i < scroller_in.children.length; i++){
-              sc_i = scroller_in.children[i];  
-              var offset_m_w = ( sc_i.dim.margin.l + sc_i.dim.margin.r ) || 0;
-              var offset_m_h = ( sc_i.dim.margin.t + sc_i.dim.margin.b ) || 0;
-              var offset_p_w = ( sc_i.dim.padding.t + sc_i.dim.padding.b ) || 0;
-              var offset_p_h = ( sc_i.dim.padding.t + sc_i.dim.padding.b ) || 0;
+            for(var i = 0; i < children.length; i++){
+              sc_i = children[i];  
+              dim = dimensions[i];
 
-              sc_i.children.cssScroller( { 'max-width' : width - offset_m_w - offset_p_w + "px " , "max-height" : height - offset_m_h - offset_p_h + "px " } );
+              sc_i.children.cssScroller( { 'max-width' : width - dim.margin.h - dim.padding.h + "px " , "max-height" : height - dim.margin.v - dim.padding.v + "px " } );
 
-              var style_o = { 'max-width' : width - offset_m_w + "px" , "max-height" : height - offset_m_h + "px" }
+              var style_o = { 'max-width' : width - dim.margin.h + "px" , "max-height" : height - dim.margin.v + "px" }
               
-              if( ( gallery && width ) || scroller_in.parent )
-                style_o['min-width'] = width - offset_m_w + "px";
+              if( ( gallery && width ) )
+                style_o['min-width'] = width - dim.margin.h + "px";
               else
                 style_o['height'] = "100%";
               
@@ -351,169 +421,98 @@ function AScroller(scroller_in, curElement){
             }
 
             
+
+            
             if( gallery && width )
               [scroller,scroller_area].cssScroller({'width': width + 'px' });
 
-              [scroller_in,scroller_area].cssScroller({'height': height + 'px' });
+              [scroller_in,scroller_area].cssScroller({'height': AScrollerBox !== scroller_in ? scroller_area.offsetHeight : height + 'px' });
             
-
           
-          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap' /*, 'max-width' : 'unset'*/ ,'align-items':'center', /*'width': 'max-content',*/ 'white-space': 'nowrap'});
+          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap','align-items':'center', 'white-space': 'nowrap'});
           
-          scroller_in.children.cssScroller({ 'overflow': 'unset' });
+          children.cssScroller({ 'overflow': 'unset' });
           
-          var toCur = curElement.offsetLeft - parseInt( window.getComputedStyle(curElement).marginLeft ) ;
-
-          if( scroller_in.arrow_next && scroller_in.arrow_prev ){
+          if( arrow_next && arrow_prev ){
 
             var s_width = scroller.offsetWidth;
-            [scroller_in.arrow_next , scroller_in.arrow_prev].cssScroller({'display' : 'block'});
-            var top = ( ( scroller_area.offsetHeight ) / 2) - ( (scroller_in.arrow_prev.offsetHeight || scroller_in.arrow_next.offsetHeight) /2 )+'px'; 
-            scroller_in.arrow_prev.cssScroller({'left': ( s_width + scroller_in.arrow_prev.offsetWidth * 1.5 < parentWidth ? -( scroller_in.arrow_prev.offsetWidth * 1.5 ) : ( scroller_in.arrow_prev.offsetWidth * 0.5 ) ) +'px', "top" : top});
-            scroller_in.arrow_next.cssScroller({'right': ( s_width + scroller_in.arrow_next.offsetWidth * 1.5 < parentWidth ?  -( scroller_in.arrow_next.offsetWidth * 1.5 ) : ( scroller_in.arrow_next.offsetWidth * 0.5 ) ) +'px', "top" : top});
-            [scroller_in.arrow_next , scroller_in.arrow_prev].cssScroller({'display' : ''});
+            [arrow_next , arrow_prev].cssScroller({'display' : 'block'});
+            var top = ( ( scroller_area.offsetHeight ) / 2) - ( (arrow_prev.offsetHeight || arrow_next.offsetHeight) /2 )+'px'; 
+            arrow_prev.cssScroller({'left': ( s_width + arrow_prev.offsetWidth * 1.5 < parentWidth ? -( arrow_prev.offsetWidth * 1.5 ) : ( arrow_prev.offsetWidth * 0.5 ) ) +'px', "top" : top});
+            arrow_next.cssScroller({'right': ( s_width + arrow_next.offsetWidth * 1.5 < parentWidth ?  -( arrow_next.offsetWidth * 1.5 ) : ( arrow_next.offsetWidth * 0.5 ) ) +'px', "top" : top});
+            [arrow_next , arrow_prev].cssScroller({'display' : ''});
 
           }
 
-          moveScroller(true, toCur );
+          moveScroller();
 
         }
 
-        function moveScroller( e, left ){
+        function moveScroller( left ){
 
-          var scroller_mini , ce_mini ;
-          if( ( ce_mini = curElement.mini ) && ( scroller_mini = ce_mini.parentNode )){
-            for(var i = 0, els = scroller_mini.children; i < els.length; i++){
-              els[i].className = els[i].className.replace(/(^|\s+)curElementMini\b/, '');
-              if(els[i] === ce_mini)
-                els[i].className += ' curElementMini';
-            }
-              
-          }
-          
-          if(!scroller_in.children.length) return;
-            
-            var elem = ( (scroller_in.parent && curElementMini) || curElement);
-            var max;
+          if( left )
+            toCurMove( left );
+          else
+            for( var i = 0; i < toCurMove_funcs.length; i++)
+              toCurMove_funcs[i]();
 
-            function toCurMove(elem, scroller_in, left){
-              var toCur = left || elem.offsetLeft - parseInt( window.getComputedStyle(elem).marginLeft ) ;
-              
-              var max = getMax(scroller_in);
-              
-              if( toCur > max ) toCur = max;
-              if( toCur <= 0 ) toCur = 0; 
+          for( var i = 0; i < arrows_funcs.length; i++)
+            arrows_funcs[i]();
 
-              scroller_in.cssScroller({'mozTransform': 'translateX('+( - toCur )+'px)','oTransform': 'translateX('+( - toCur )+'px)','webkitTransform': 'translateX('+( - toCur )+'px)', 'transform': 'translateX('+( - toCur )+'px)'});
-            }
-
-            if(scroller_in.mini){ 
-              curElementMini = curElement.mini;
-              toCurMove(curElement.mini, scroller_in.mini)
-              arrows(scroller_in.mini, scroller_in.mini.arrow_prev,scroller_in.mini.arrow_next,curElement.mini);
-            }
-        
-          if( e ){
-
-            toCurMove(elem, scroller_in, left);
-
-            arrows(scroller_in , scroller_in.arrow_prev , scroller_in.arrow_next , elem);
-            
-            if(scroller_in.parent){
-              toCurMove(curElement, scroller_in.parent);
-              arrows(scroller_in.parent, scroller_in.parent.arrow_prev , scroller_in.parent.arrow_next , curElement);
-            }
-
-          }
-
-          var ref_condition = scroller_in.condition || condition;
-
-          if( ref_condition ){
-
-            
-            ref_condition.style.display = "block";
-
-            var ref_condition_pre = document.createElement("DIV");
-            
-
-            var el = ( scroller_in.parent || scroller_in).children[0];
-            var sim_curCss = 0;
-            var max = getMax( scroller_in.parent || scroller_in)
-            var clsnm = "curCondition"
-            var index_cur_condition;
-
-            while(el){
-              var el_R = el.offsetLeft + el.offsetWidth + parseInt( window.getComputedStyle(el).marginRight );
-              
-              if( el_R > sim_curCss ){
-                
-                  var el_C = document.createElement("DIV");
-                  ref_condition_pre.appendChild( el_C );
-                
-                sim_curCss += scroller_area.clientWidth;
-              }
-              if( el_C && clsnm && ( el === curElement ) ) el_C.className = clsnm , clsnm = undefined , index_cur_condition = ref_condition_pre.children.length - 1 ;
-              
-              el = el.nextElementSibling;
-            }
-
-            if( ref_condition_pre.children.length < 2 ){
-              ref_condition.innerHTML = "";
-            }else if( ref_condition.children.length !== ref_condition_pre.children.length ){
-              ref_condition.innerHTML = "";
-
-              for( ;ref_condition_pre.children.length; )
-                ref_condition.appendChild( ref_condition_pre.children[0] );
-
-            }else if( index_cur_condition !== undefined ){
-              for( var i = 0 ; ref_condition.children.length > i ; i++ )
-                 ref_condition.children[i].className = ref_condition_pre.children[i].className ;
-            }
-
-            ref_condition_pre = null;
-
-            ref_condition.style.display = "";
-
-            ref_condition.style.height = window.getComputedStyle( ref_condition ).height;
-          
-          
-          }
-
-
-          function arrows( scroller , a_p , a_n , elem ){
-            
-            var curCSS = - curCss(true, scroller);
-            max = getMax(scroller);
-
-            if(a_n && ( last = scroller.children[ scroller.children.length - 1] )){
-              a_n.className = a_n.className.replace(/(^|\s+)hide_arrow\b/,'')
-              if( curCSS >= max || elem === last )
-                a_n.className += ' hide_arrow';
-            }
-
-            if(a_p && (first = scroller.children[0])){
-                a_p.className = a_p.className.replace(/(^|\s+)hide_arrow\b/,'')
-              if( curCSS <= 0 || elem === first )
-                a_p.className += ' hide_arrow';
-            }
-
-          }
+          if( set_condition ) set_condition();
         
         }
+
         
+
+        function toCurMove(left){
+          var toCur = left || curElement.offsetLeft - parseInt( window.getComputedStyle(curElement).marginLeft ) ;
+          
+          var max = getMax();
+          
+          if( toCur > max ) toCur = max;
+          if( toCur <= 0 ) toCur = 0; 
+
+          scroller_in.cssScroller({'mozTransform': 'translateX('+( - toCur )+'px)','oTransform': 'translateX('+( - toCur )+'px)','webkitTransform': 'translateX('+( - toCur )+'px)', 'transform': 'translateX('+( - toCur )+'px)'});
+        }
+
+        toCurMove_funcs.push(toCurMove);
+
+        function arrows_func(){
+            
+          var curCSS = - curCss(true);
+          max = getMax();
+
+          if( arrow_next && ( last = scroller_in.children[ scroller_in.children.length - 1] )){
+            arrow_next.className = arrow_next.className.replace(/(^|\s+)hide_arrow\b/,'')
+            if( curCSS >= max || curElement === last )
+              arrow_next.className += ' hide_arrow';
+          }
+
+          if( arrow_prev && (first = scroller_in.children[0])){
+              arrow_prev.className = arrow_prev.className.replace(/(^|\s+)hide_arrow\b/,'')
+            if( curCSS <= 0 || curElement === first )
+              arrow_prev.className += ' hide_arrow';
+          }
+
+        }
+
+        arrows_funcs.push(arrows_func);
+
         resize();
+
+        if( scroller_in === big_scroller && set_cur_element_funcs.length > 1 ) 
+          set_cur_element_func( curElement );
 
         window.addEventListener('resize', resize);
 
-        function getMax(other){
-          other = other || scroller_in;
+        function getMax(){
           var width = 0;
 
-          for( var i = 0, el = other.children[i]; i < other.children.length; el = other.children[++i])
+          for( var i = 0, el = scroller_in.children[i]; i < scroller_in.children.length; el = scroller_in.children[++i])
           width += el.offsetWidth + parseFloat(window.getComputedStyle(el).marginLeft) + parseFloat(window.getComputedStyle(el).marginRight);
 
-          return width - (other ? other.scroller_area : scroller_area ).clientWidth;
-
+          return width - scroller_area.clientWidth;
         }
 
         function event_off_move(e){
@@ -598,15 +597,21 @@ function AScroller(scroller_in, curElement){
               else {
                 moveTo('close')
               }
-
               
             }
 
-              window.addEventListener( !touches ? "mouseup" : "touchend", endmove );    
+            if(!touches)
+              window.addEventListener("mouseup", endmove );    
+            else
+              window.addEventListener("touchend", endmove );    
       
         }
+
         
-          scroller_area.addEventListener( !touches ? "mousedown" : "touchstart" ,  startmove)  
+        if(!touches)
+          scroller_area.addEventListener("mousedown",  startmove)  
+        else
+          scroller_area.addEventListener("touchstart",  startmove)  
         
 
       function moveTo(direction,e){
@@ -624,7 +629,7 @@ function AScroller(scroller_in, curElement){
         if(!curElement || ( close && ( direction = 'next' ) ) )
           elemCycle = (scroller_in).children[0];
         else 
-          elemCycle = (scroller_in.parent && curElementMini) || curElement;
+          elemCycle = curElement;
 
 
         scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = transitionDuration;
@@ -659,12 +664,12 @@ function AScroller(scroller_in, curElement){
 
           }
 
-          if(!scroller_in.parent)
             curElement = elemCycle;
-          else
-            curElementMini = elemCycle;
 
-          moveScroller(true, left)
+          if( scroller_in === big_scroller && set_cur_element_funcs.length > 1 ) 
+            set_cur_element_func( elemCycle, left );
+          else
+            moveScroller(left);
           
       }
 
@@ -703,18 +708,18 @@ function AScroller(scroller_in, curElement){
       }
 
       
-    if(scroller_in.arrow_next){
+    if(arrow_next){
       if(!touches)
-        scroller_in.arrow_next.addEventListener('mousedown', moveTo.bind(null,'next'));
+        arrow_next.addEventListener('mousedown', moveTo.bind(null,'next'));
       else
-        scroller_in.arrow_next.addEventListener('touchstart', moveTo.bind(null,'next'));
+        arrow_next.addEventListener('touchstart', moveTo.bind(null,'next'));
     }
 
-    if(scroller_in.arrow_prev){
+    if(arrow_prev){
       if(!touches)
-        scroller_in.arrow_prev.addEventListener('mousedown', moveTo.bind(null,'previous'));
+        arrow_prev.addEventListener('mousedown', moveTo.bind(null,'previous'));
       else
-        scroller_in.arrow_prev.addEventListener('touchstart', moveTo.bind(null,'previous'));
+        arrow_prev.addEventListener('touchstart', moveTo.bind(null,'previous'));
     }
 
 
@@ -722,6 +727,6 @@ function AScroller(scroller_in, curElement){
 
 }
 
-}, {once:true} );
+} );
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
