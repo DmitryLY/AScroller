@@ -411,8 +411,9 @@ function AScroller(scroller_in, curElement_){
               sc_i.children.cssScroller( { 'max-width' : width - dim.margin.h - dim.padding.h + "px " , "max-height" : height - dim.margin.v - dim.padding.v + "px " } );
 
               var style_o = { 'max-width' : width - dim.margin.h + "px" , "max-height" : height - dim.margin.v + "px" }
+
               
-              if( ( gallery && width ) )
+              if( ( gallery && width ) || mini_scroller === scroller_in  )
                 style_o['min-width'] = width - dim.margin.h + "px";
               else
                 style_o['height'] = "100%";
