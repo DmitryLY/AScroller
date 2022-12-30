@@ -355,7 +355,9 @@ function AScroller(scroller_in, curElement_){
 
           var sc_i , width = 0, height = 0, dimensions = [], children = [].slice.call( scroller_in.children );
           
-          children.cssScroller({ 'box-sizing': 'border-box' , 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left" : "" , "padding-right" : "" , "padding-top" : "" , "padding-bottom" : "" });
+          if( gallery || mini_scroller === scroller_in )
+              children.cssScroller({ 'box-sizing': 'border-box' , 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left" : "" , "padding-right" : "" , "padding-top" : "" , "padding-bottom" : "" });
+          
           [scroller,scroller_in,scroller_area].cssScroller({ 'height' : '' });
           scroller_in.cssScroller({'display' : 'block'});
 
@@ -416,9 +418,10 @@ function AScroller(scroller_in, curElement_){
               if( ( gallery && width ) || mini_scroller === scroller_in  )
                 style_o['min-width'] = width - dim.margin.h + "px";
               else
-                style_o['height'] = "100%";
+                style_o['height'] = "auto";
               
-                sc_i.cssScroller(style_o);
+                if( gallery || mini_scroller === scroller_in )
+                  sc_i.cssScroller(style_o);
             }
 
             
@@ -430,7 +433,7 @@ function AScroller(scroller_in, curElement_){
               [scroller_in,scroller_area].cssScroller({'height': AScrollerBox !== scroller_in ? scroller_area.offsetHeight : height + 'px' });
             
           
-          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap','align-items':'center', 'white-space': 'nowrap'});
+          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap', 'white-space': 'nowrap'});
           
           children.cssScroller({ 'overflow': 'unset' });
           
