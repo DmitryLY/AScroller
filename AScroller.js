@@ -39,11 +39,10 @@ function AScroller(scroller_in, curElement_){
   
 
     for(var i = 0; i < scroller_in.children.length; i++){
-      var el = scroller_in.children[i];el.setAttribute('pos',i);
+      var el = scroller_in.children[i];
       if(el.tagName !== "IMG")continue;
       var box_flex = document.createElement("DIV");
       box_flex.className = "Ascroller_box_flex";
-      box_flex.setAttribute('pos',i);
       scroller_in.insertBefore( box_flex , el );
       box_flex.appendChild( el );
     }
@@ -806,7 +805,6 @@ function AScroller(scroller_in, curElement_){
                 if( clone ){
                   if( !(cloned = get_cloned( move_element )) ){
                     cloned = move_element.cloneNode(true);
-                    cloned.setAttribute('cloned','');
                     cloned_elems.push([ move_element , cloned ]);
                   }
                   
