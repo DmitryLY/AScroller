@@ -3,25 +3,33 @@
     position: absolute;
     top:0;
     background: #FFFFFF;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+    /*box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);*/
     border-radius: 50%;
     text-align: center;
     padding: 17px 21px;
     cursor: pointer;
-    transition: box-shadow 0.3s ease 0s;
+    /*transition: box-shadow 0.3s ease 0s;*/
     z-index: 10;
     display: flex;
     opacity: 0.8;
   }
 
+  .arrows.prev:hover svg, .arrows.next:hover svg{
+    stroke: #2f9fd3;
+  }
+
+  .arrows.prev svg, .arrows.next svg{
+    stroke: #000;
+  }
+
   .AScrollerBoxMini .arrows.prev, .AScrollerBoxMini  .arrows.next{
-    padding: 8px 2px !important;
+    padding: 8px 6px !important;
     border-radius: 5px;
   }
 
-  .arrows.prev:hover, .arrows.next:hover{
+  /*.arrows.prev:hover, .arrows.next:hover{
     box-shadow: rgb(0 0 0 / 34%) 0px 0px 10px;
-  }
+  }*/
 
   .arrows.prev.hide_arrow, .arrows.next.hide_arrow{
     display: none;
@@ -32,9 +40,9 @@
     display: flex;
   }
 
-  .AScrollerBoxMini .arrows.prev:hover, .AScrollerBoxMini  .arrows.next:hover{
+  /*.AScrollerBoxMini .arrows.prev:hover, .AScrollerBoxMini  .arrows.next:hover{
     box-shadow: rgb(0 0 0 / 34%) 0px 0px 10px;
-  }
+  }*/
 
   .AScroller > *{
     margin:10px;
@@ -42,13 +50,15 @@
   }
 
   .AScrollerBoxMini{
-    width: 120px;
+    /*width: 120px;*/
     margin: auto;
   }
 
   .AScroller_miniImages > *{
-    width: 60px;
-    height: 60px;
+    min-width: 60px;
+    max-height: 60px;
+    max-width: 60px;
+    max-height: 60px;
     display: inline-block;
     vertical-align: middle;
   }
@@ -57,8 +67,9 @@
     height: 60px;
   }
 
-  .AScroller_miniImages > *{
+  .AScroller_miniImages > * > IMG{
     padding: 5px;
+    box-sizing: border-box;
   }
 
   .AScroller_miniImages .curElementMini{
@@ -102,6 +113,13 @@
   .Ascroller_box_flex > img{
     vertical-align: middle;
     margin: auto;
+    max-width:inherit;
+    max-height: inherit;
+  }
+
+  .AScrollerBox > *:not( .AScroller_miniImages ) > * > .Ascroller_box_flex > img{
+    padding: 10px;
+    box-sizing: border-box;
   }
 
   .Ascroller_box_flex{

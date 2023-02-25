@@ -69,8 +69,8 @@ function AScroller(scroller_in, curElement_){
 
     var curElement = curElement_ || scroller_in.children[0];
 
-    var nativeStyleWidth = parseInt( scroller_in.style.width ) || parseInt( scroller_in.style.maxWidth )  || parseInt( window.getComputedStyle(scroller_in).width ) ;
-    var nativeStyleHeight = parseInt( scroller_in.style.height ) || parseInt( scroller_in.style.maxHeight ) || parseInt( window.getComputedStyle(scroller_in).height ) ;
+    var nativeStyleWidth = parseInt( scroller_in.style.width ) || parseInt( scroller_in.style.maxWidth ) ;
+    var nativeStyleHeight = parseInt( scroller_in.style.height ) || parseInt( scroller_in.style.maxHeight ) ;
 
     var data_ascroller = scroller_in.getAttribute("data-ascroller");
 
@@ -250,9 +250,9 @@ function AScroller(scroller_in, curElement_){
 
             var box = document.createElement("DIV");
             box.setAttribute("data-ascroller",  "gallery" + ( ( !touches && " mini-scrollerx5 arrows" ) || "") + ( ( cycle_option && ' cycle ' ) || '') + " condition");
-            var parent = this.parentNode.children;
+            var parent = condition_mem || this.parentNode.children;
             for(var i = 0; i < parent.length; i++){
-              if( !parent[i].children[0] || parent[i].children[0].tagName !== "IMG" )continue;
+              if( get_cloned( undefined , parent[i] ) || !parent[i].children[0] || parent[i].children[0].tagName !== "IMG" )continue;
               var el_c = parent[i].cloneNode(true);
               if( this === parent[i] ) var curEl = el_c;
               el_c.removeAttribute("style");
@@ -296,7 +296,10 @@ function AScroller(scroller_in, curElement_){
               for (var i = 0; i < scroller_in.children.length; i++){
                 if(scroller_in.children[i].children[0].tagName !== "IMG") continue;
                 var mini = scroller_in.children[i].cloneNode(true);
-                mini.style = '';
+                
+                mini.setAttribute('style' , '');
+                mini.children[0].setAttribute('style' , '');
+                
                 big_mini_elements.push( [ scroller_in.children[i] , mini ] );
                 mini_scroller.appendChild( mini );
               }
@@ -305,7 +308,7 @@ function AScroller(scroller_in, curElement_){
             if(mini_scroller.children.length){
 
               scroller.appendChild( mini_scroller );
-              mini_scroller.style.width = d_x > 0 ? ( d_x < i ? d_x : i) * ( parseInt(window.getComputedStyle(mini_scroller.children[0]).width) ) + "px" : ""; 
+              mini_scroller.style.width = d_x > 0 ? ( d_x < i ? d_x : i) * ( parseInt(window.getComputedStyle(mini_scroller.children[0]).width) ) + "px" : "" ; 
 
               init(mini_scroller);
               resize();
@@ -364,113 +367,103 @@ function AScroller(scroller_in, curElement_){
           //arrow_next.innerHTML = '    <svg width="19" height="16" viewBox="4 0 19 16">    <path d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
           //arrow_prev.innerHTML = '    <svg width="19" height="16" viewBox="-4 0 19 16"">    <path transform="rotate(-180 9.499987602233887,8.000007629394531) " d="M 18.7071 8.7071 C 19.0976 8.3166 19.0976 7.6834 18.7071 7.2929 L 12.3431 0.9289 C 11.9526 0.5384 11.3195 0.5384 10.9289 0.9289 C 10.5384 1.3195 10.5384 1.9526 10.9289 2.3432 L 16.5858 8 L 10.9289 13.6569 C 10.5384 14.0474 10.5384 14.6805 10.9289 15.0711 C 11.3195 15.4616 11.9526 15.4616 12.3431 15.0711 L 18.7071 8.7071 Z Z" />    </svg>    ';
 
-          arrow_next.innerHTML = '<svg width="10" height="18" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M2 18L10 10L2 2" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/> </svg> ';
-          arrow_prev.innerHTML = '<svg width="10" height="18" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10 2L2 10L10 18" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/> </svg> ';
+          arrow_next.innerHTML = '<svg width="10" height="18" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M2 18L10 10L2 2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/> </svg> ';
+          arrow_prev.innerHTML = '<svg width="10" height="18" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10 2L2 10L10 18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/> </svg> ';
 
-          arrow_prev.ondragstart = arrow_prev.ondrop = arrow_prev.onselectstart = function(){return false;};
-          arrow_next.ondragstart = arrow_next.ondrop = arrow_next.onselectstart = function(){return false;};
+          arrow_prev.ondragstart = arrow_prev.ondrop = arrow_prev.onselectstart = function(){ return false; };
+          arrow_next.ondragstart = arrow_next.ondrop = arrow_next.onselectstart = function(){ return false; };
 
         }
 
-        function resize(){
 
-          var sc_i , width = 0, height = 0, dimensions = [], children = [].slice.call( scroller_in.children );
+        var resize_width;
+
+        function resize(e){
+
+          if( e && e.type === 'resize' && resize_width === window.innerWidth ) return;
+
+          resize_width = window.innerWidth
+
+          remove_cloned();
+
+          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap', 'white-space': 'nowrap'});
+
+          var sc_i , width = 0, height = 0, children = [].slice.call( scroller_in.children );
+
+          [scroller,scroller_in,scroller_area].cssScroller({ 'height' : 'auto' , 'width': 'auto'});
+
+          children.cssScroller({ 'margin': '', 'box-sizing': 'border-box' , 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left" : "" , "padding-right" : "" , "padding-top" : "" , "padding-bottom" : "" });
+        
+
           
-          if( gallery || mini_scroller === scroller_in )
-              children.cssScroller({ 'box-sizing': 'border-box' , 'width' : '' , 'min-width' : '', 'max-width' : '' , 'max-height' : '' , 'heigth' : '' , "padding-left" : "" , "padding-right" : "" , "padding-top" : "" , "padding-bottom" : "" });
-          
-          [scroller,scroller_in,scroller_area].cssScroller({ 'height' : '' });
-          scroller_in.cssScroller({'display' : 'block'});
+          var width, height;
 
-            for(var i = 0; i < children.length; i++){
-              sc_i = children[i]; 
-              sc_i.children.cssScroller( { 'max-width' : "" , "max-height" : "" } );
-              var get_c = window.getComputedStyle(sc_i);
-              var dim = {};
-              dimensions.push( dim );
+          if( AScrollerBox === scroller_in ){
+            width = window.innerWidth;
+            height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (mini_scroller && mini_scroller.offsetHeight) || 0 );
+          }else{
 
-              dim.margin = {h: parseInt( get_c.marginLeft ) + parseInt( get_c.marginRight ), v: parseInt( get_c.marginBottom ) + parseInt( get_c.marginTop )};
-              dim.padding = {h: parseInt( get_c.paddingLeft ) + parseInt( get_c.paddingRight ), v: parseInt( get_c.paddingTop ) + parseInt( get_c.paddingBottom )};
+            width = parent.offsetWidth - parseInt(window.getComputedStyle(parent).paddingLeft) - parseInt(window.getComputedStyle(parent).paddingRight);
+            height = parent.offsetHeight - parseInt(window.getComputedStyle(parent).paddingBottom) - parseInt(window.getComputedStyle(parent).paddingTop);
 
-              var width_i = sc_i.offsetWidth + dim.margin.h;
-              if( width_i > width )
-                  width = width_i ;
-
-              var height_i = sc_i.offsetHeight + dim.margin.v;
-              if( height_i > height )
-                  height = height_i ;
-                
-            }
-
-            scroller_in.cssScroller({'display' : 'flex'});
-
+            if( nativeStyleHeight && nativeStyleHeight < height )
+              height = nativeStyleHeight;
+            
             if( nativeStyleWidth && nativeStyleWidth < width )
               width = nativeStyleWidth;
-          
-            var parentWidth = parent.offsetWidth - parseInt(window.getComputedStyle(parent).paddingLeft) - parseInt(window.getComputedStyle(parent).paddingRight);
-            var parentHeight = parent.offsetHeight - parseInt(window.getComputedStyle(parent).paddingBottm) - parseInt(window.getComputedStyle(parent).paddingTop);
             
-            
-            if( AScrollerBox === scroller_in ){
-              width = window.innerWidth;
-              height = window.innerHeight - ( (condition && condition.offsetHeight) || 0 ) - ( (mini_scroller && mini_scroller.offsetHeight) || 0 );
-            }else{
+          }
 
-              if( nativeStyleHeight && nativeStyleHeight < height )
-                height = nativeStyleHeight;
-              
-              if( nativeStyleWidth && nativeStyleWidth < width )
-                width = nativeStyleWidth;
-              
-              if( width > parentWidth ) width = parentWidth;
-              if( height > parentHeight ) height = parentHeight;
-              
-            }
-
+          if( mini_scroller !== scroller_in ){
             for(var i = 0; i < children.length; i++){
-              sc_i = children[i];  
-              dim = dimensions[i];
-
-              sc_i.children.cssScroller( { 'max-width' : width - dim.margin.h - dim.padding.h + "px " , "max-height" : height - dim.margin.v - dim.padding.v + "px " } );
-
-              var style_o = { 'max-width' : width - dim.margin.h + "px" , "max-height" : height - dim.margin.v + "px" }
-
+              sc_i = children[i]; 
               
-              if( ( gallery && width ) || mini_scroller === scroller_in  )
-                style_o['min-width'] = width - dim.margin.h + "px";
-              else
-                style_o['height'] = "auto";
+              var style_o = { 'max-width' : width - parseInt(window.getComputedStyle(sc_i).paddingLeft) - parseInt(window.getComputedStyle(sc_i).paddingRight) + "px" };//, "max-height" : height - parseInt(window.getComputedStyle(sc_i).paddingTop) - parseInt(window.getComputedStyle(sc_i).paddingBottom) + "px" };
+
+              if( ( gallery && width ) ){ 
+                style_o['min-width'] = width + "px";
+                AScrollerBox === scroller_in && ( style_o['min-height'] = height + "px" ) && ( style_o["max-height"] = height - parseInt(window.getComputedStyle(sc_i).paddingTop) - parseInt(window.getComputedStyle(sc_i).paddingBottom) + "px" );
+              }
               
-                if( gallery || mini_scroller === scroller_in )
-                  sc_i.cssScroller(style_o);
+                sc_i.cssScroller(style_o);
             }
 
-            
+            if( AScrollerBox !== scroller_in  )
+              for(var i = 0; i < children.length; i++){
+                sc_i = children[i]; 
+                
+                var style_o = { "max-height" : height + "px" };
+                
+                  sc_i.cssScroller(style_o);
+              }
 
-            
-            if( gallery && width )
-              [scroller,scroller_area].cssScroller({'width': width + 'px' });
+          }
 
-              [scroller_in,scroller_area].cssScroller({'height': AScrollerBox !== scroller_in ? scroller_area.offsetHeight : height + 'px' });
-            
+          AScrollerBox === scroller_in && [scroller_area].cssScroller({'height': height + 'px', 'width': width+'px' }) ||
+          [scroller].cssScroller({ 'max-width': width+'px' });
+
+          for(var i = 0; i < children.length; i++){
+            sc_i = children[i]; 
+            if( sc_i.offsetWidth + parseInt(window.getComputedStyle(sc_i).marginLeft) + parseInt(window.getComputedStyle(sc_i).marginRight) >= width )
+              sc_i.cssScroller({'margin': '0'});
+          }
           
-          scroller_in.cssScroller({'overflow':'', 'font-size': '0', 'position': 'relative', 'left': '0', 'display': 'flex', 'flex-wrap' : 'nowrap', 'white-space': 'nowrap'});
           
           children.cssScroller({ 'overflow': 'unset' });
-          
+
           if( arrow_next && arrow_prev ){
 
             var s_width = scroller.offsetWidth;
             [arrow_next , arrow_prev].cssScroller({'display' : 'block'});
             var top = ( ( scroller_area.offsetHeight ) / 2) - ( (arrow_prev.offsetHeight || arrow_next.offsetHeight) /2 )+'px'; 
-            arrow_prev.cssScroller({'left': ( s_width + arrow_prev.offsetWidth * 1.5 < parentWidth ? -( arrow_prev.offsetWidth * 1.5 ) : ( arrow_prev.offsetWidth * 0.1 ) ) +'px', "top" : top});
-            arrow_next.cssScroller({'right': ( s_width + arrow_next.offsetWidth * 1.5 < parentWidth ?  -( arrow_next.offsetWidth * 1.5 ) : ( arrow_next.offsetWidth * 0.1 ) ) +'px', "top" : top});
+            arrow_prev.cssScroller({'left': ( s_width + arrow_prev.offsetWidth * 1.5 < parent.offsetWidth ? -( arrow_prev.offsetWidth * 1.5 ) : ( arrow_prev.offsetWidth * 0.1 ) ) +'px', "top" : top});
+            arrow_next.cssScroller({'right': ( s_width + arrow_next.offsetWidth * 1.5 < parent.offsetWidth ?  -( arrow_next.offsetWidth * 1.5 ) : ( arrow_next.offsetWidth * 0.1 ) ) +'px', "top" : top});
             [arrow_next , arrow_prev].cssScroller({'display' : ''});
 
           }
 
           moveScroller();
-
+          
         }
 
         function moveScroller( left ){
@@ -507,6 +500,12 @@ function AScroller(scroller_in, curElement_){
         toCurMove_funcs.push(toCurMove);
 
         function arrows_func(){
+
+          if( scroller_in.children.length < 2 ){
+            arrow_next && ( arrow_next.className = arrow_next.className.replace(/(^|\s+)hide_arrow\b/,'') ) && ( arrow_next.className += ' hide_arrow' );
+            arrow_prev && ( arrow_prev.className = arrow_prev.className.replace(/(^|\s+)hide_arrow\b/,'') ) && ( arrow_prev.className += ' hide_arrow' );
+            return;
+          }
 
           if( cycle_option ){
             
@@ -558,7 +557,7 @@ function AScroller(scroller_in, curElement_){
         if( scroller_in === big_scroller && set_cur_element_funcs.length > 1 ) 
           set_cur_element_func( curElement );
 
-        window.addEventListener('resize', resize);
+        window.addEventListener( 'resize', resize);
 
         function getMax(){
           var width = 0;
@@ -585,7 +584,8 @@ function AScroller(scroller_in, curElement_){
 
           moving = false;
           
-          if( (e && e.button != undefined && e.button != 0) || (getMax() < 0) )return;
+          if( (e && e.button != undefined && e.button != 0) || (getMax() < 0) || scroller_in.children.length < 2 )
+            return;
 
           var curCSS = curCss();  
           var elemX = (e.clientX!=undefined)?e.clientX : e.changedTouches[0].clientX;
@@ -687,6 +687,16 @@ function AScroller(scroller_in, curElement_){
         }
         
         var cloned_elems = [];
+
+        function remove_cloned(){
+
+          if( !cloned_elems ) return;
+
+          for( var i = 0; i < cloned_elems.length; i++ )
+          cloned_elems[i][1].parentNode && cloned_elems[i][1].parentNode.removeChild(cloned_elems[i][1]);
+
+          cloned_elems = [];
+        }
 
         function get_cloned( elem , cloned ){
 
@@ -834,9 +844,10 @@ function AScroller(scroller_in, curElement_){
 
 
       function moveTo(direction,e){
+
         if( (e && e.button != undefined && e.button != 0) || ( !cycle_option && getMax() < 0) || !direction )return;
 
-        if( !scroller_in.children.length )
+        if( scroller_in.children.length < 2 )
           return;
           
         var left, next;
@@ -849,7 +860,6 @@ function AScroller(scroller_in, curElement_){
           elemCycle = (scroller_in).children[0];
         else 
           elemCycle = curElement;
-
 
         scrollerStyle.oTransitionDuration = scrollerStyle.mozTransitionDuration = scrollerStyle.transitionDuration = scrollerStyle.webkitTransitionDuration = '0s';//transitionDuration;
 
